@@ -6,46 +6,31 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="ui.js"></script>
-    <script src="toponym_search_handler.js"></script>
+    <script src="query_handler.js"></script>
 </head>
 <body>
 
 <div class="center_container">
-    <h2>
-        LoBaNS – location-based news search
-    </h2>
-    <span style="font-style: italic">This website uses data from <a href="http://NewsAPI.org">NewsAPI.org</a> (developer plan).</span>
-    <br><br><br>
 
+    <div>
+        <h2>LoBaNS – location-based news search</h2>
+        <span style="font-style: italic">This website uses data from <a target="_blank" href="http://NewsAPI.org">NewsAPI.org</a> (developer plan).</span>
+        <br><br>
+    </div>
 
+    <div>
+        <h3>Your toponym query</h3>
+        <input type="text" id="toponym">
+        <br>
+    </div>
 
-    Toponym:
-    <input type="text" id="toponym">
-    <br><br>
-    <div id="suggestedToponyms"></div>
-
+    <div id="suggestedToponyms">
+    </div>
 
     <!-- [Map] -->
-    <br><br>
 
-    Topics of interest:
-    <br>
-    <input type="checkbox" class="topic" id="all">all topics<br>
-    <input type="checkbox" class="topic" id="general">general<br>
-    <input type="checkbox" class="topic" id="science-and-nature">science-and-nature<br>
-    <input type="checkbox" class="topic" id="technology">technology<br>
-    <input type="checkbox" class="topic" id="business">business<br>
-    <input type="checkbox" class="topic" id="politics">politics<br>
-    <input type="checkbox" class="topic" id="sport">sport<br>
-    <input type="checkbox" class="topic" id="health-and-medical">health-and-medical<br>
-    <input type="checkbox" class="topic" id="entertainment">entertainment<br>
-    <input type="checkbox" class="topic" id="music">music<br>
-    <input type="checkbox" class="topic" id="gaming">gaming<br>
-    <br><br>
-
-
-    <div id="newsArticles"></div>
-
+    <div id="newsArticles">
+    </div>
 
 </div>
 

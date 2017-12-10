@@ -29,33 +29,42 @@ $('document').ready(function() {
         // ToDo: international toponyms
         if (document.getElementById("toponym").value.length > 1) {
             var toponymQuery = document.getElementById("toponym").value;
-            queryToponym(toponymQuery, function (toponymResult) {
-                var addressComponents = JSON.parse(toponymResult)['results'][0]['address_components'];
+            queryToponymAtGoogle(toponymQuery, function (toponymResult, searchEngine) {
                 var toponyms = [];
-                var formattedToponyms = "Toponyms used for news query: <br>";
-                for (var k = 0; k < addressComponents.length && k < 4; k++) {
-                    var currentAddressComponent = addressComponents[k];
-                    toponyms.push(currentAddressComponent['short_name']);
+
+                if (searchEngine == "google") {
+                    var addressComponents = JSON.parse(toponymResult)['results'][0]['address_components'];
+                    var formattedToponyms = "<br><h3>Toponyms used for news query</h3>";
+                    for (var k = 0; k < addressComponents.length && k < 4; k++) {
+                        var currentAddressComponent = addressComponents[k];
+                        toponyms.push(currentAddressComponent['long_name']);
+                    }
+                    toponyms = eliminateDuplicates(toponyms);
                 }
-                toponyms = eliminateDuplicates(toponyms);
+
                 for (var l = 0; l < toponyms.length; l++) {
-                    formattedToponyms += "<input type='checkbox' class='toponym' checked='true'>" + toponyms[l] + "<br>";
+                    formattedToponyms += "<input type='checkbox' class='toponym' checked='true'>&nbsp;" + toponyms[l] + "<br>";
                 }
+
                 document.getElementById("suggestedToponyms").innerHTML = formattedToponyms;
 
-                // ToDo: All toponyms
-                queryNews(toponyms[0], [], function (newsResult) {
-                    var newsArticles = JSON.parse(newsResult)["articles"];
-                    console.log(newsArticles);
-                    var formattedNewsArticles = "<b>News articles found</b><br><br>";
-                    for (var i = 0; i < newsArticles.length; i++) {
-                        formattedNewsArticles += "<a target='_blank' href='" + newsArticles[i]["url"] + "'>    <table><tr><td width='200px'><img src='" + newsArticles[i]["urlToImage"] + "' style='width: 150px'></td><td><b>" + newsArticles[i]["title"] + "</b><br>";
-                        formattedNewsArticles += newsArticles[i]["source"]["name"] + ", " + newsArticles[i]["author"] + "</td></tr></table></a><br>";
-                    }
-                    console.log(formattedNewsArticles);
-                    document.getElementById("newsArticles").innerHTML = formattedNewsArticles;
+                document.getElementById("newsArticles").innerHTML = "<br><h3>News articles found</h3>";
 
-                })
+
+                for (var j = 0; j < toponyms.length; j++) {
+                    queryNews(toponyms[j], function (newsResult) {
+                        //var formattedNewsArticles = "<br><h3>News articles found</h3>";
+                        var formattedNewsArticles = "";
+                        var newsArticles = JSON.parse(newsResult)["articles"];
+                        for (var i = 0; i < newsArticles.length; i++) {
+                            formattedNewsArticles += "<a target='_blank' href='" + newsArticles[i]["url"] + "'>    <table><tr><td width='200px'><img src='" + newsArticles[i]["urlToImage"] + "' style='width: 150px'></td><td><b>" + newsArticles[i]["title"] + "</b><br>"
+                                + newsArticles[i]["source"]["name"] + ", " + newsArticles[i]["author"] + "</td></tr></table></a><br>";
+                        }
+                        document.getElementById("newsArticles").innerHTML += formattedNewsArticles;
+                    })
+                }
+
+
 
 
 
@@ -63,6 +72,7 @@ $('document').ready(function() {
         }
         else {
             document.getElementById("suggestedToponyms").innerHTML = "";
+            document.getElementById("newsArticles").innerHTML = "";
         }
 
 
@@ -70,9 +80,24 @@ $('document').ready(function() {
 
 
 
+    function queryToponymAtGoogle(toponymQuery, callback) {
+        var toponymQueryReadyForURI = toponymQuery.replace(/ /g, "%20");
 
+        var documentURI = "https://maps.googleapis.com/maps/api/geocode/json?address=" + toponymQueryReadyForURI + "&key=AIzaSyDizoHQV-qR8McTaEWwyvgIvbwOp9PP5Go&language=en";
 
-    function queryToponym(toponymQuery, callback) {
+        var xobj = new XMLHttpRequest();
+        xobj.overrideMimeType("application/json");
+        xobj.open('GET', documentURI, true);
+        xobj.onreadystatechange = function () {
+            if (xobj.readyState == 4 && xobj.status == "200") {
+                // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+                callback(xobj.responseText, "google");
+            }
+        };
+        xobj.send(null);
+    }
+
+    function queryToponymAtHere(toponymQuery, callback) {
         var toponymQueryReadyForURI = toponymQuery.replace(/ /g, "%20");
 
         var documentURI = "https://maps.googleapis.com/maps/api/geocode/json?address=" + toponymQueryReadyForURI + "&key=AIzaSyDizoHQV-qR8McTaEWwyvgIvbwOp9PP5Go";
@@ -83,22 +108,14 @@ $('document').ready(function() {
         xobj.onreadystatechange = function () {
             if (xobj.readyState == 4 && xobj.status == "200") {
                 // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-                callback(xobj.responseText);
+                callback(xobj.responseText, "google");
             }
         };
         xobj.send(null);
     }
 
-    function queryNews(toponym, topics, callback) {
+    function queryNews(toponym, callback) {
         var newsQuery = toponym + "%20";
-        // ToDo: Topics
-        /*
-        if (topics[0] != "all") {
-            for (var i = 0; i < topics.length; i++) {
-                newsQuery += topics[i];
-            }
-        }
-        */
         var newsQueryReadyForURI = newsQuery.replace(/ /g, "%20");
         var documentURI = "https://newsapi.org/v2/everything?sources=techcrunch&apiKey=a7612bd53542440c99ac5ccdcce6af4d&page=1&q=" + newsQueryReadyForURI;
 
@@ -107,7 +124,6 @@ $('document').ready(function() {
         xobj.open('GET', documentURI, true);
         xobj.onreadystatechange = function () {
             if (xobj.readyState == 4 && xobj.status == "200") {
-                // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
                 callback(xobj.responseText);
             }
         };
