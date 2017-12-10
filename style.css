@@ -1,0 +1,43 @@
+
+body {
+    background-color: lightgrey;
+    font-family: Tahoma;
+}
+
+table {
+    background-color: #E5E5E5;
+    padding: 20px;
+    width: 100%;
+    border: thin;
+    height: 160px;
+}
+
+.center_container {
+    background-color: ghostwhite;
+    margin: 30px;
+    padding: 30px;
+}
+
+/* unvisited link */
+a:link {
+    color: black;
+    text-decoration: none;
+}
+
+/* visited link */
+a:visited {
+    color: black;
+    text-decoration: none;
+}
+
+/* mouse over link */
+a:hover {
+    color: black;
+    text-decoration: none;
+}
+
+/* selected link */
+a:active {
+    color: black;
+    text-decoration: none;
+}

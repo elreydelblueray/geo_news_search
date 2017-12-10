@@ -32,7 +32,7 @@ $('document').ready(function() {
             queryToponym(toponymQuery, function (toponymResult) {
                 var addressComponents = JSON.parse(toponymResult)['results'][0]['address_components'];
                 var toponyms = [];
-                var formattedToponyms = "Suggested toponyms: <br>";
+                var formattedToponyms = "Toponyms used for news query: <br>";
                 for (var k = 0; k < addressComponents.length && k < 4; k++) {
                     var currentAddressComponent = addressComponents[k];
                     toponyms.push(currentAddressComponent['short_name']);
@@ -46,14 +46,14 @@ $('document').ready(function() {
                 // ToDo: All toponyms
                 queryNews(toponyms[0], [], function (newsResult) {
                     var newsArticles = JSON.parse(newsResult)["articles"];
+                    console.log(newsArticles);
                     var formattedNewsArticles = "<b>News articles found</b><br><br>";
                     for (var i = 0; i < newsArticles.length; i++) {
-                        formattedNewsArticles += newsArticles[i]["title"] + "<br><br>";
+                        formattedNewsArticles += "<a target='_blank' href='" + newsArticles[i]["url"] + "'>    <table><tr><td width='200px'><img src='" + newsArticles[i]["urlToImage"] + "' style='width: 150px'></td><td><b>" + newsArticles[i]["title"] + "</b><br>";
+                        formattedNewsArticles += newsArticles[i]["source"]["name"] + ", " + newsArticles[i]["author"] + "</td></tr></table></a><br>";
                     }
-
-
+                    console.log(formattedNewsArticles);
                     document.getElementById("newsArticles").innerHTML = formattedNewsArticles;
-
 
                 })
 
